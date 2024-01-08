@@ -1,5 +1,5 @@
 #!/bin/bash
-
+set -e
 just prepare-up
 
 # Wait for container to startup before doing bootstrapping

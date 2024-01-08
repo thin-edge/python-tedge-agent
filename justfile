@@ -21,8 +21,8 @@ prepare-up *args='':
     docker compose build {{args}}
 
 # Run demo
-up:
-    docker compose up -d --build
+up *args="":
+    docker compose up --detach --build {{args}}
 
 # Setup and bootstrap
 up-ci:
