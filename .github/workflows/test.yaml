@@ -87,7 +87,7 @@ jobs:
 
       - name: Start demo
         run: |
-          just up
+          just up-ci
           just bootstrap
 
       - name: Run tests

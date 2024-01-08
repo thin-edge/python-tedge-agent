@@ -16,9 +16,17 @@ format-check:
 lint:
     python3 -m pylint src
 
+# Prepare up but don't start any containers
+prepare-up *args='':
+    docker compose build {{args}}
+
 # Run demo
 up:
     docker compose up -d --build
+
+# Setup and bootstrap
+up-ci:
+    ./ci/demo.sh
 
 # Stop demo
 down:
