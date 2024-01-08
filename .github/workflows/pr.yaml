@@ -16,6 +16,8 @@ jobs:
   check:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
       # Support running workflow locally on arm64 systems using act
       # https://github.com/actions/setup-python/issues/705#issuecomment-1756948951
       - if: ${{ env.ARCH == 'arm64' }}
