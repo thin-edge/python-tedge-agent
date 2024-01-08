@@ -67,7 +67,7 @@ services:
   child01:
     build:
       context: .
-      dockerfile: ./images/child.dockerfile
+      dockerfile: ./containers/demo.dockerfile
       args:
         - PY_VERSION=${PY_VERSION:-3.11}
     environment:

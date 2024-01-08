@@ -14,7 +14,6 @@ ARG PY_VERSION=3.10
 COPY --from=builder "/usr/local/lib/python${PY_VERSION}/site-packages" "/usr/local/lib/python${PY_VERSION}/site-packages"
 COPY --from=builder /usr/local/bin/python-tedge-agent /usr/local/bin/
 
-#COPY config/tedge-configuration-plugin.json /config
 COPY config/*.json /data/config/
 
 ENV CONNECTOR_TEDGE_HOST=mqtt-broker
