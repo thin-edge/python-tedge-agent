@@ -48,8 +48,8 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v5
         with:
-          context: containers/opcua-device-gateway
-          file: containers/production.dockerfile
+          context: .
+          file: containers/agent.dockerfile
           push: ${{ github.event_name != 'pull_request' }}
           platforms: linux/amd64,linux/arm64
           tags: ${{ steps.meta.outputs.tags }}
