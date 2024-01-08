@@ -1,0 +1,9 @@
+*.whl
+*.egg-info
+*.env
+.venv/
+_version.py
+__pycache__/
+build/
+dist/
+output/

@@ -1,0 +1,42 @@
+name: Test
+
+on:
+  workflow_dispatch:
+  # Use a manual approval process before PR's are given access to
+  # the secrets which are required to run the integration tests.
+  # The PR code should be manually approved to see if it can be trusted.
+  # When in doubt, do not approve the test run.
+  # Reference: https://dev.to/petrsvihlik/using-environment-protection-rules-to-secure-secrets-when-building-external-forks-with-pullrequesttarget-hci
+  pull_request_target:
+    branches: [ main ]
+  push:
+    branches: [ main ]
+  merge_group:
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      # Support running workflow locally on arm64 systems using act
+      # https://github.com/actions/setup-python/issues/705#issuecomment-1756948951
+      - if: ${{ env.ARCH == 'arm64' }}
+        uses: deadsnakes/action@v2.1.1
+        with:
+          python-version: "3.10"
+      - if: ${{ env.ARCH == 'amd64' }}
+        uses: actions/setup-python@v4
+        with:
+            python-version: '3.10'
+            cache: 'pip'
+
+      - uses: extractions/setup-just@v1
+        with:
+            github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install dependencies
+        run: just install-deps
+
+      - name: Format
+        run: just format-check
+
+      - name: Lint
+        run: just lint

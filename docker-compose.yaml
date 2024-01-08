@@ -1,0 +1,84 @@
+version: "3"
+
+# device template
+x-device-defaults: &defaults
+  image: ghcr.io/thin-edge/tedge-demo:${VERSION:-latest}
+  pull_policy: always
+  restart: always
+  tmpfs:
+    - /tmp
+  depends_on:
+    - mqtt-broker
+
+services:
+  bootstrap:
+    image: ghcr.io/thin-edge/tedge-demo:${VERSION:-latest}
+    stop_grace_period: "2s"
+    pull_policy: always
+    user: root
+    command:
+      - sh
+      - -c
+      - "until [ -f /etc/tedge/mosquitto-conf/c8y-bridge.conf ]; do echo 'Waiting for bootstrapping'; sleep 5; done; echo Finished bootstrapping"
+    volumes:
+      - device-certs:/etc/tedge/device-certs
+      - mosquitto-conf:/etc/tedge/mosquitto-conf
+      - tedge:/etc/tedge
+
+  mqtt-broker:
+    image: ghcr.io/thin-edge/tedge-mqtt-broker:${VERSION:-latest}
+    pull_policy: always
+    depends_on:
+      bootstrap:
+        condition: service_completed_successfully
+    restart: always
+    volumes:
+      - mosquitto:/mosquitto/data
+      - mosquitto-conf:/etc/tedge/mosquitto-conf
+      - device-certs:/etc/tedge/device-certs
+
+  tedge-mapper-c8y:
+    <<: *defaults
+    command: ["/usr/bin/tedge-mapper", "c8y"]
+    volumes:
+      - device-certs:/etc/tedge/device-certs
+      - tedge:/etc/tedge
+
+  # TODO: Deprecate once tedge-agent can also handle child firmware updates
+  c8y-firmware-plugin:
+    <<: *defaults
+    command: ["/usr/bin/c8y-firmware-plugin"]
+    environment:
+      - TEDGE_MQTT_CLIENT_HOST=mqtt-broker
+      - TEDGE_HTTP_CLIENT_HOST=tedge
+    volumes:
+      - device-certs:/etc/tedge/device-certs
+      - tedge:/etc/tedge
+      - tedge-data:/var/tedge
+
+  # main device
+  tedge:
+    <<: *defaults
+    command: ["/usr/bin/tedge-agent", "--mqtt-device-topic-id", "device/main//"]
+    volumes:
+      - tedge-data:/var/tedge
+
+  # python child device
+  child01:
+    build:
+      context: .
+      dockerfile: ./images/child.dockerfile
+      args:
+        - PY_VERSION=${PY_VERSION:-3.11}
+    environment:
+      - CONNECTOR_TEDGE_HOST=mqtt-broker
+      - CONNECTOR_DEVICE_ID=child01
+      - CONNECTOR_CONFIGURATION_PATH=/data/config/tedge-configuration-plugin.json
+
+volumes:
+  device-certs:
+  mosquitto:
+  mosquitto-conf:
+  tedge:
+  # Remove once c8y-firmware-plugin is removed
+  tedge-data:

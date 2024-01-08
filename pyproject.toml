@@ -1,0 +1,47 @@
+[build-system]
+requires = [
+    "setuptools>=61",
+    "wheel",
+    "setuptools-scm[toml]>=6.2",
+]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools_scm]
+write_to = "src/tedge/agent/_version.py"
+
+[project]
+name = "tedge-agent"
+description = "thin-edge.io python connector"
+readme = "README.md"
+authors = [
+    {name = "thin-edge.io team", email = "info@thin-edge.io"}
+]
+license.file = "LICENSE"
+requires-python = ">=3.7"
+keywords = ["device"]
+
+classifiers = [
+    "Programming Language :: Python :: 3",
+]
+dynamic = ["version"]
+dependencies = [
+    "paho-mqtt >= 1.6.1, < 1.7.0",
+    "requests >= 2.31.0, < 2.32.0",
+    "psutil >= 5.9.4, < 5.10.0",
+    "python-dotenv >= 0.20.0, < 0.21.0",
+    "importlib-metadata >= 6.0.0, < 7.0.0; python_version<'3.8'",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/thin-edge.io/python-tedge-agent"
+"Bug Reports" = "https://github.com/thin-edge.io/python-tedge-agent/issues"
+"Source" = "https://github.com/thin-edge.io/python-tedge-agent/"
+
+[project.scripts]
+python-tedge-agent = "tedge.agent:__main__"
+
+[project.optional-dependencies]
+dev = [
+  "black",
+  "pylint",
+]
