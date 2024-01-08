@@ -82,17 +82,26 @@ def bootstrap(config: Config, client: Client):
 
 def load_plugin_config(config: Config) -> Dict[str, Any]:
     """Load plugin configuration"""
-    plugin_config = json.loads(
-        Path(config.configuration.path).read_text(encoding="utf8")
-    )
+    config_file = Path(config.configuration.path)
     data = {
         config.configuration.type: {
             "type": config.configuration.type,
             "path": config.configuration.path,
         },
     }
-    for item in plugin_config.get("files", []):
-        data[item["type"]] = item
+    try:
+        # don't stop on unexpected errors
+        if config_file.exists():
+            plugin_config = json.loads(config_file.read_text(encoding="utf8"))
+            for item in plugin_config.get("files", []):
+                data[item["type"]] = item
+    # pylint: disable=broad-exception-caught
+    except Exception as ex:
+        log.warning(
+            "Could not load plugin configuration from file. path=%s, error=%s",
+            config_file,
+            ex,
+        )
     return data
 
 
